@@ -10,7 +10,7 @@ describe('runMigrations', () => {
     const results = await Promise.all([runMigrations(pool), runMigrations(pool)]);
     expect(results).toEqual([[], []]);
     const { rows } = await pool.query('select name from schema_migrations');
-    expect(rows.map((row) => row.name)).toEqual(['001_invoices.sql']);
+    expect(rows.map((row) => row.name)).toEqual(['001_invoices.sql', '002_discounts.sql']);
   });
 
   describe('constraints', () => {

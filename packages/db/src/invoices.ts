@@ -18,6 +18,9 @@ export interface Invoice {
   totalCents: number;
   status: InvoiceStatus;
   paymentReference: string | null;
+  notes: string | null;
+  discountCode: string | null;
+  discountCents: number;
   createdAt: Date;
   updatedAt: Date;
   lineItems: LineItem[];
@@ -27,6 +30,7 @@ export interface NewInvoice {
   customerName: string;
   customerEmail: string;
   currency: string;
+  notes?: string;
   lineItems: Omit<LineItem, 'position'>[];
 }
 
@@ -38,6 +42,9 @@ interface InvoiceRow {
   total_cents: number;
   status: InvoiceStatus;
   payment_reference: string | null;
+  notes: string | null;
+  discount_code: string | null;
+  discount_cents: number;
   created_at: Date;
   updated_at: Date;
   line_items: { position: number; description: string; quantity: number; unit_price_cents: number }[];
@@ -67,6 +74,9 @@ function toInvoice(row: InvoiceRow): Invoice {
     totalCents: row.total_cents,
     status: row.status,
     paymentReference: row.payment_reference,
+    notes: row.notes,
+    discountCode: row.discount_code,
+    discountCents: row.discount_cents,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     lineItems: row.line_items.map((item) => ({
@@ -84,9 +94,9 @@ export async function createInvoice(pool: pg.Pool, invoice: NewInvoice): Promise
   try {
     await client.query('begin');
     const { rows } = await client.query<{ id: string }>(
-      `insert into invoices (customer_name, customer_email, currency, total_cents)
-       values ($1, $2, $3, $4) returning id`,
-      [invoice.customerName, invoice.customerEmail, invoice.currency, totalCents],
+      `insert into invoices (customer_name, customer_email, currency, total_cents, notes)
+       values ($1, $2, $3, $4, $5) returning id`,
+      [invoice.customerName, invoice.customerEmail, invoice.currency, totalCents, invoice.notes ?? null],
     );
     const invoiceId = rows[0]!.id;
     await client.query(
@@ -118,14 +128,21 @@ export async function getInvoice(pool: pg.Pool, id: string): Promise<Invoice | n
   return rows[0] ? toInvoice(rows[0]) : null;
 }
 
+export interface ListInvoicesOptions {
+  status?: InvoiceStatus;
+  limit: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
 export async function listInvoices(
   pool: pg.Pool,
-  { status, limit }: { status?: InvoiceStatus; limit: number },
+  { status, limit, sort = 'created_at', direction = 'desc' }: ListInvoicesOptions,
 ): Promise<Invoice[]> {
   const { rows } = await pool.query<InvoiceRow>(
     `${selectInvoice}
      where ($1::text is null or i.status = $1)
-     order by i.created_at desc, i.id desc
+     order by ${sort} ${direction}, i.id desc
      limit $2`,
     [status ?? null, limit],
   );
