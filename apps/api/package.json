@@ -1,0 +1,17 @@
+{
+  "name": "@hire-wire/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.ts"
+  },
+  "dependencies": {
+    "@hire-wire/db": "workspace:*",
+    "fastify": "^5.12.5",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}
