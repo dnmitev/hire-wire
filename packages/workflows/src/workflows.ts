@@ -60,6 +60,7 @@ export async function invoiceWorkflow({ invoiceId }: InvoiceWorkflowInput): Prom
   decisionRecorded = true;
 
   if (decision === 'approved') {
+    await activities.notifyCustomer(invoiceId, Date.now());
     try {
       const { paymentReference } = await activities.chargeInvoice(invoiceId);
       await activities.markPaid(invoiceId, paymentReference);

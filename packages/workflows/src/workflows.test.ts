@@ -13,6 +13,7 @@ function mockActivities(overrides: Partial<InvoiceActivities> = {}) {
   return {
     approveInvoice: vi.fn(async () => {}),
     rejectInvoice: vi.fn(async () => {}),
+    notifyCustomer: vi.fn(async () => {}),
     chargeInvoice: vi.fn(async () => ({ paymentReference: 'pay_1' })),
     markPaid: vi.fn(async () => {}),
     markPaymentFailed: vi.fn(async () => {}),
@@ -44,6 +45,7 @@ describe('invoiceWorkflow', () => {
       expect(await handle.result()).toBe('paid');
     });
     expect(activities.approveInvoice).toHaveBeenCalledOnce();
+    expect(activities.notifyCustomer).toHaveBeenCalledOnce();
     expect(activities.chargeInvoice).toHaveBeenCalledOnce();
     expect(activities.markPaid).toHaveBeenCalledWith(expect.any(String), 'pay_1');
   });

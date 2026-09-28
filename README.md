@@ -72,6 +72,22 @@ curl -s 'localhost:3000/invoices?status=paid&limit=10'
 | POST   | `/invoices/:id/reject`   | `200` invoice; `409` if already decided; `404` if unknown      |
 | GET    | `/health`                | `{ status: "ok" }` once the database answers                   |
 
+## Discounts
+
+Pending invoices can take one discount code. `WELCOME10` (10% off) is seeded by the migrations.
+
+```bash
+curl -s -X POST localhost:3000/invoices/<id>/discount -H 'content-type: application/json' -d '{ "code": "WELCOME10" }'
+```
+
+`409` means the code is unknown, used up, or the invoice is no longer pending.
+
+## Invoice pages
+
+Open <http://localhost:3000/admin/login> and log in with `ADMIN_TOKEN` (default `changeme`). From
+there, <http://localhost:3000/invoices/view> lists invoices; each invoice has a printable page with an
+Approve button. Once an invoice is approved, the worker emails the customer before charging.
+
 ## Develop
 
 Requires Node 24 and Docker (tests start Postgres in a container and a local Temporal server).

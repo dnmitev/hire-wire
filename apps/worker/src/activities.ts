@@ -1,3 +1,4 @@
+import { log } from '@temporalio/activity';
 import { ApplicationFailure } from '@temporalio/common';
 import type pg from 'pg';
 import { getInvoice, transitionStatus, type InvoiceStatus } from '@hire-wire/db';
@@ -25,6 +26,16 @@ export function createActivities({
   return {
     approveInvoice: (invoiceId) => transition(invoiceId, 'pending_approval', 'approved'),
     rejectInvoice: (invoiceId) => transition(invoiceId, 'pending_approval', 'rejected'),
+    async notifyCustomer(invoiceId, approvedAt) {
+      const invoice = await getInvoice(pool, invoiceId);
+      if (!invoice) return;
+      // Stand-in for the email provider.
+      log.info('Sending approval email', {
+        to: invoice.customerEmail,
+        invoiceId,
+        approvedAt: new Date(approvedAt).toISOString(),
+      });
+    },
     async chargeInvoice(invoiceId) {
       const invoice = await getInvoice(pool, invoiceId);
       if (invoice?.status !== 'approved') {

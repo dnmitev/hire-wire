@@ -24,6 +24,7 @@ export const statusQuery = defineQuery<InvoiceWorkflowStatus>('status');
 export interface InvoiceActivities {
   approveInvoice(invoiceId: string): Promise<void>;
   rejectInvoice(invoiceId: string): Promise<void>;
+  notifyCustomer(invoiceId: string, approvedAt: number): Promise<void>;
   chargeInvoice(invoiceId: string): Promise<{ paymentReference: string }>;
   markPaid(invoiceId: string, paymentReference: string): Promise<void>;
   markPaymentFailed(invoiceId: string): Promise<void>;
