@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: invoices
+      POSTGRES_PASSWORD: invoices
+      POSTGRES_DB: invoices
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U invoices -d invoices"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  temporal:
+    image: temporalio/temporal:1.9.1
+    command: ["server", "start-dev", "--ip", "0.0.0.0"]
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+    healthcheck:
+      test: ["CMD", "temporal", "operator", "cluster", "health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    build: .
+    command: ["node", "packages/db/src/migrate.ts"]
+    environment: &app-env
+      DATABASE_URL: postgres://invoices:invoices@postgres:5432/invoices
+      TEMPORAL_ADDRESS: temporal:7233
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: .
+    environment: *app-env
+    ports:
+      - "3000:3000"
+    depends_on: &app-depends-on
+      migrate:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: ["node", "apps/worker/src/worker.ts"]
+    environment: *app-env
+    depends_on: *app-depends-on
+
+volumes:
+  postgres-data:

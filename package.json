@@ -18,6 +18,10 @@
   },
   "devDependencies": {
     "@hire-wire/db": "workspace:*",
+    "@hire-wire/workflows": "workspace:*",
+    "@temporalio/client": "1.24.0",
+    "@temporalio/testing": "1.24.0",
+    "@temporalio/worker": "1.24.0",
     "@types/node": "^24",
     "oxlint": "^1.85.0",
     "typescript": "^7",

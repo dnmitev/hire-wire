@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { useTestDatabase } from '../../../../test/database.ts';
+import { connectTestTemporal } from '../../../../test/temporal.ts';
 import { buildApp } from '../app.ts';
 
 const validBody = {
@@ -12,9 +13,11 @@ const validBody = {
   ],
 };
 
+const { client } = await connectTestTemporal();
+
 describe('invoice routes', () => {
   const pool = useTestDatabase();
-  const app = buildApp({ pool });
+  const app = buildApp({ pool, temporal: client });
   afterAll(() => app.close());
 
   async function countInvoices() {

@@ -1,3 +1,4 @@
+import type { Client } from '@temporalio/client';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type pg from 'pg';
 import { ZodError } from 'zod';
@@ -5,10 +6,11 @@ import { invoiceRoutes } from './routes/invoices.ts';
 
 export interface AppOptions {
   pool: pg.Pool;
+  temporal: Client;
   logger?: boolean;
 }
 
-export function buildApp({ pool, logger = false }: AppOptions): FastifyInstance {
+export function buildApp({ pool, temporal, logger = false }: AppOptions): FastifyInstance {
   const app = Fastify({ logger });
 
   app.setErrorHandler((error, request, reply) => {
@@ -32,7 +34,7 @@ export function buildApp({ pool, logger = false }: AppOptions): FastifyInstance 
     return { status: 'ok' };
   });
 
-  app.register(invoiceRoutes, { pool });
+  app.register(invoiceRoutes, { pool, temporal });
 
   return app;
 }

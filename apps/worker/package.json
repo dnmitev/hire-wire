@@ -1,18 +1,18 @@
 {
-  "name": "@hire-wire/api",
+  "name": "@hire-wire/worker",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node src/server.ts"
+    "start": "node src/worker.ts"
   },
   "dependencies": {
     "@hire-wire/db": "workspace:*",
     "@hire-wire/workflows": "workspace:*",
-    "@temporalio/client": "1.24.0",
+    "@temporalio/activity": "1.24.0",
     "@temporalio/common": "1.24.0",
-    "fastify": "^5.12.5",
-    "zod": "^4.6.5"
+    "@temporalio/worker": "1.24.0",
+    "pg": "^8.23.0"
   },
   "devDependencies": {
     "@types/pg": "^8.23.1"
