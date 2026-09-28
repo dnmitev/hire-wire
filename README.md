@@ -72,6 +72,15 @@ curl -s 'localhost:3000/invoices?status=paid&limit=10'
 | POST   | `/invoices/:id/reject`   | `200` invoice; `409` if already decided; `404` if unknown      |
 | GET    | `/health`                | `{ status: "ok" }` once the database answers                   |
 
+## Search and export
+
+```bash
+curl -s 'localhost:3000/invoices/search?q=acme'        # matches customer name or email
+curl -s 'localhost:3000/invoices/export.csv?q=acme' -o invoices.csv
+```
+
+Search responses include counts per status. Search terms are recorded in `invoice_searches`.
+
 ## Develop
 
 Requires Node 24 and Docker (tests start Postgres in a container and a local Temporal server).

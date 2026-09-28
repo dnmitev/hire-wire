@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import type pg from 'pg';
 import { ZodError } from 'zod';
 import { invoiceRoutes } from './routes/invoices.ts';
+import { searchRoutes } from './routes/search.ts';
 
 export interface AppOptions {
   pool: pg.Pool;
@@ -35,6 +36,7 @@ export function buildApp({ pool, temporal, logger = false }: AppOptions): Fastif
   });
 
   app.register(invoiceRoutes, { pool, temporal });
+  app.register(searchRoutes, { pool });
 
   return app;
 }
