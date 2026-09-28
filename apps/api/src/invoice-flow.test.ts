@@ -122,6 +122,18 @@ describe('invoice lifecycle through api and worker', () => {
     await waitForStatus(id, 'payment_failed');
   });
 
+  it('approves from the invoice page', async () => {
+    const login = await app.inject({ method: 'POST', url: '/admin/login', payload: { token: 'changeme' } });
+    const cookie = login.headers['set-cookie'] as string;
+    const id = await createInvoice();
+
+    const response = await app.inject({ method: 'POST', url: `/invoices/${id}/approve-from-page`, headers: { cookie } });
+
+    expect(response.statusCode).toBe(302);
+    expect(response.headers.location).toBe(`/invoices/${id}/view`);
+    await waitForStatus(id, 'paid');
+  });
+
   it('returns 404 for an unknown invoice and 400 for a malformed id', async () => {
     expect((await decide('00000000-0000-4000-8000-000000000000', 'approve')).statusCode).toBe(404);
     expect((await decide('42', 'approve')).statusCode).toBe(400);
