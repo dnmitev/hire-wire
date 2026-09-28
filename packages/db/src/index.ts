@@ -1,5 +1,6 @@
 export { createPool } from './pool.ts';
 export { runMigrations } from './migrate.ts';
+export { countByStatus, recordSearch, searchInvoices, type InvoiceSearchResult } from './search.ts';
 export {
   createInvoice,
   getInvoice,
