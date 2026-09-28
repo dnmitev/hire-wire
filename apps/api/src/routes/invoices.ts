@@ -22,6 +22,7 @@ const createInvoiceBody = z.object({
   customerName: z.string().trim().min(1).max(200),
   customerEmail: z.email(),
   currency: z.string().regex(/^[A-Z]{3}$/, 'Expected an ISO 4217 code such as EUR'),
+  notes: z.string().optional(),
   lineItems: z
     .array(
       z.object({
@@ -39,6 +40,8 @@ const invoiceParams = z.object({ id: z.uuid() });
 const listInvoicesQuery = z.object({
   status: z.enum(invoiceStatuses).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
+  sort: z.string().optional(),
+  direction: z.enum(['asc', 'desc']).optional(),
 });
 
 function workflowOptions(invoiceId: string) {

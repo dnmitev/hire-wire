@@ -2,6 +2,7 @@ import type { Client } from '@temporalio/client';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type pg from 'pg';
 import { ZodError } from 'zod';
+import { discountRoutes } from './routes/discounts.ts';
 import { invoiceRoutes } from './routes/invoices.ts';
 
 export interface AppOptions {
@@ -35,6 +36,7 @@ export function buildApp({ pool, temporal, logger = false }: AppOptions): Fastif
   });
 
   app.register(invoiceRoutes, { pool, temporal });
+  app.register(discountRoutes, { pool });
 
   return app;
 }
